@@ -1,24 +1,30 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProductsModule } from './products/products.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { BotService } from './bot/bot.service';
 import { FriendsModule } from './friends/friends.module';
+import { ConfigModule } from '@nestjs/config';
+import { Friend } from './friends/friends.model';
+import { BotModule } from './bot/bot.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+    }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '123654',
-      database: 'Yarema-bot',
-      models: [],
+      host: process.env.POSTGRES_HOST,
+      port: Number(process.env.POSTGRES_PORT),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+      models: [Friend],
+      autoLoadModels: true,
     }),
     FriendsModule,
+    BotModule,
   ],
   controllers: [AppController],
   providers: [AppService, BotService],

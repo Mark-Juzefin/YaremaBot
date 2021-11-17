@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import axios from 'axios';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -25,8 +26,17 @@ export class BotService implements OnModuleInit {
         return callback(message);
       }
     });
+    bot.onText(/show friends/, async function (message) {
+      const result = await axios.get('http://localhost:3000/friends');
+      const data = result.data;
+      const res = data.map(
+        (x) => `name: ${x.name} age: ${x.age} phone ${x.phone}`,
+      );
 
-    bot.onText(/add a friend/, function (message, match) {
+      bot.sendMessage(message.chat.id, res.join('\n'));
+    });
+
+    bot.onText(/add a friend/, function (message) {
       bot.sendMessage(message.chat.id, 'What is his name?').then(function () {
         answerCallbacks[message.chat.id] = function (answer) {
           const name = answer.text;
@@ -38,8 +48,14 @@ export class BotService implements OnModuleInit {
                 bot
                   .sendMessage(message.chat.id, 'what phone does he have? ')
                   .then(function () {
-                    answerCallbacks[message.chat.id] = function (answer) {
+                    answerCallbacks[message.chat.id] = async function (answer) {
                       const phone = answer.text;
+                      await axios.post('http://localhost:3000/friends', {
+                        name,
+                        age,
+                        phone,
+                      });
+
                       bot.sendMessage(
                         message.chat.id,
                         `${name} ${age} ${phone}  saved!`,
