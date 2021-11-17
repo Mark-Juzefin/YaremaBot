@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductsModule } from './products/products.module';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { BotService } from './bot/bot.service';
+import { FriendsModule } from './friends/friends.module';
 
 @Module({
   imports: [
@@ -16,8 +18,9 @@ import { SequelizeModule } from '@nestjs/sequelize';
       database: 'Yarema-bot',
       models: [],
     }),
+    FriendsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, BotService],
 })
 export class AppModule {}
